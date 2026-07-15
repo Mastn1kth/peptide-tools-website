@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bookworm
+FROM python:3.14-slim-bookworm
 
 ARG PEPTIDE_TOOLS_COMMIT=e639de3c08ee701a1ad9c25f70c6d26a7589af8c
 
