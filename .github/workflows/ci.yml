@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm audit --omit=dev
+
+  backend-container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build API image
+        run: docker build -f backend/Dockerfile -t peptide-tools-api:ci .
+      - name: Start API container
+        run: docker run -d --name peptide-tools-api -p 8000:8000 peptide-tools-api:ci
+      - name: Wait for health check
+        run: |
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:8000/health > /tmp/health.json; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs peptide-tools-api
+          exit 1
+      - name: Run real FASTA calculation
+        run: |
+          curl --fail --silent \
+            --header 'Content-Type: application/json' \
+            --data '{"input":"ADWAK","input_type":"fasta"}' \
+            http://127.0.0.1:8000/submitJob > /tmp/result.json
+          python - <<'PY'
+          import json
+
+          with open('/tmp/result.json', encoding='utf-8') as response:
+              result = json.load(response)['result']
+
+          descriptors = result['output_descriptors']['1']
+          assert descriptors['seq_length'] == 5
+          assert round(descriptors['molecular_weight'], 1) == 589.6
+          assert result['filename'].endswith('.png')
+          PY
+      - name: Show container logs on failure
+        if: failure()
+        run: docker logs peptide-tools-api
+
