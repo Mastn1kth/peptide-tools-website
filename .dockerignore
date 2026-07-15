@@ -1,0 +1,15 @@
+.git
+.github
+.env
+.env.*
+!.env.example
+node_modules
+dist
+.playwright-cli
+.pytest_cache
+work
+backend/.pytest_cache
+backend/.venv
+backend/tests
+backend/**/__pycache__
+*.pyc

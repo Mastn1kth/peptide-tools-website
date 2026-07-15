@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: peptide-tools-api
+    runtime: docker
+    plan: standard
+    numInstances: 1
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: ALLOWED_ORIGINS
+        value: https://peptide-tools.com,https://www.peptide-tools.com
+      - key: PEPTIDE_TOOLS_DATA_DIR
+        value: /tmp/peptide-tools
+      - key: CALCULATION_MEMORY_MB
+        value: "1024"

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.playwright-cli/
+work/
+work-*.png
+.env
+backend/.venv/
+backend/.pytest_cache/
+backend/**/__pycache__/
+.pytest_cache/

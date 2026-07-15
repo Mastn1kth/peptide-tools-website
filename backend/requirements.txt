@@ -1,0 +1,7 @@
+fastapi==0.136.3
+uvicorn[standard]==0.38.0
+python-multipart==0.0.32
+rdkit==2025.9.6
+biopython==1.87
+matplotlib==3.10.8
+numpy==2.2.6
